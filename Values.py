@@ -5,6 +5,7 @@ class Value:
     def __init__(self, data, label="", _children: tp.Tuple = (), _op: str = "") -> None:
         self.label = label
         self.data = data
+        self.grad = 0.0
         self._prev = set(_children)
         self._op = _op
 
