@@ -1,3 +1,4 @@
+import math
 import typing as tp
 
 
@@ -17,3 +18,7 @@ class Value:
 
     def __mul__(self, other):
         return Value(self.data * other.data, _children=(self, other), _op="*")
+
+    def tanh(self):
+        data = (math.exp(2 * self.data) - 1) / (math.exp(2 * self.data) + 1)
+        return Value(data, _children=(self,), _op="tanh")
