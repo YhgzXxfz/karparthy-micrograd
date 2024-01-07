@@ -6,7 +6,16 @@ import numpy as np
 from core.engine import Value
 
 
-class Neuron:
+class Module:
+    def zero_grad(self):
+        for p in self.parameters():
+            p.grad = 0.0
+
+    def parameters():
+        return []
+
+
+class Neuron(Module):
     def __init__(self, nin: int) -> None:
         self.weights = [Value(np.random.uniform(-1, 1)) for _ in range(nin)]
         self.bias = Value(np.random.uniform(-1, 1))
@@ -16,16 +25,23 @@ class Neuron:
         out = out.tanh()
         return out
 
+    def parameters(self):
+        return self.weights + [self.bias]
 
-class Layer:
+
+class Layer(Module):
     def __init__(self, nin: int, nout: int) -> None:
         self.neurons = [Neuron(nin) for _ in range(nout)]
 
     def __call__(self, x) -> tp.Any:
-        return [neuron(x) for neuron in self.neurons]
+        out = [neuron(x) for neuron in self.neurons]
+        return out[0] if len(out) == 1 else out
+
+    def parameters(self):
+        return [p for neuron in self.neurons for p in neuron.parameters()]
 
 
-class MLP:
+class MLP(Module):
     def __init__(self, nin: int, nouts: tp.List[int]) -> None:
         sz = [nin] + nouts
         self.layers = [Layer(sz[i], sz[i + 1]) for i in range(len(nouts))]
@@ -35,3 +51,6 @@ class MLP:
             x = layer(x)
 
         return x
+
+    def parameters(self):
+        return [p for layer in self.layers for p in layer.parameters()]
